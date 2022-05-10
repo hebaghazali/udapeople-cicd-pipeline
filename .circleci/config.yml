@@ -15,6 +15,13 @@ commands:
           command: |
             # Your code here
             exit 1
+  notify:
+    description: Send notification when a build fails
+    steps:
+      - slack/notify:
+          channel: D03EVSE101G
+          event: fail
+          template: basic_fail_1
 
   revert-migrations:
     description: Revert the last migration if successfully run in the current workflow.
@@ -52,6 +59,7 @@ jobs:
       - save_cache:
           paths: [frontend/node_modules]
           key: frontend-build
+      - notify
 
   build-backend:
     docker:
@@ -69,35 +77,7 @@ jobs:
       - save_cache:
           paths: [backend/node_modules]
           key: backend-build
-      - slack/notify:
-          channel: D03EVSE101G
-          event: fail
-          template: basic_fail_1
-
-  notify:
-    docker:
-      - image: cimg/base:2021.04
-        auth:
-          username: mydockerhub-user
-          password: $DOCKERHUB_PASSWORD
-    steps:
-      - slack/notify:
-          custom: |
-            {
-              "blocks": [
-                {
-                  "type": "section",
-                  "fields": [
-                    {
-                      "type": "plain_text",
-                      "text": "*This is a text notification*",
-                      "emoji": true
-                    }
-                  ]
-                }
-              ]
-            }
-          event: always
+      - notify
 
   test-frontend:
     docker:
@@ -319,7 +299,8 @@ jobs:
 workflows:
   default:
     jobs:
-      # - build-frontend
+      # - build-frontend:
+      #     context: slack
       - build-backend:
           context: slack
       # - test-frontend:
