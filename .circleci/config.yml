@@ -13,8 +13,8 @@ commands:
           command: |
             aws s3 rm s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
             aws s3 rb s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7}
-            aws cloudformation delete-stack --stack-name frontend-${CIRCLE_WORKFLOW_ID:0:7}
-            aws cloudformation delete-stack --stack-name backend-${CIRCLE_WORKFLOW_ID:0:7}
+            aws cloudformation delete-stack --stack-name udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}
+            aws cloudformation delete-stack --stack-name udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}
   notify:
     description: Send notification when a build fails
     steps:
@@ -160,6 +160,7 @@ jobs:
             --filters "Name=tag:project,Values=backend" \
             --output text >> .circleci/ansible/inventory.txt
             cat ./.circleci/ansible/inventory.txt
+      - run: yum -y install tar
       - persist_to_workspace:
           root: ~/
           paths:
