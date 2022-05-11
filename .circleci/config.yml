@@ -11,8 +11,11 @@ commands:
           name: Destroy environments
           when: on_fail
           command: |
-            aws s3 rm s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
-            aws s3 rb s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7}
+            if aws s3 ls "s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7}" 2>&1 | grep -q 'NoSuchBucket'
+            then
+              aws s3 rm s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
+              aws s3 rb s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7}
+            fi
             aws cloudformation delete-stack --stack-name udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}
             aws cloudformation delete-stack --stack-name udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}
   notify:
