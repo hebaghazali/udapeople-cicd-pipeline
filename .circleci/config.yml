@@ -162,9 +162,8 @@ jobs:
             cat ./.circleci/ansible/inventory.txt
       - run: yum -y install tar gzip
       - persist_to_workspace:
-          root: ~/
-          paths:
-            - .circleci/ansible/inventory.txt
+          root: .circleci/ansible/
+          paths: [inventory.txt]
       - destroy-environment
 
   # configure-infrastructure:
