@@ -160,7 +160,7 @@ jobs:
             --filters "Name=tag:project,Values=backend" \
             --output text >> .circleci/ansible/inventory.txt
             cat ./.circleci/ansible/inventory.txt
-      - run: yum -y install tar
+      - run: yum -y install tar gzip
       - persist_to_workspace:
           root: ~/
           paths:
