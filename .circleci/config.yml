@@ -11,7 +11,9 @@ commands:
           name: Destroy environments
           when: on_fail
           command: |
-            pip install awscli
+            sudo apt-get update
+            sudo apt-get install awscli
+
             if aws s3 ls "s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7}" 2>&1 | grep -q 'NoSuchBucket'
             then
               aws s3 rm s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
@@ -201,10 +203,6 @@ jobs:
       - checkout
       - restore_cache:
           keys: [backend-build]
-      - run:
-          name: Install dependencies
-          command: |
-            npm install pip
       - run:
           name: Run migrations
           command: |
