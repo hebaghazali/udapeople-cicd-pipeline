@@ -28,21 +28,18 @@ commands:
 
   revert-migrations:
     description: Revert the last migration if successfully run in the current workflow.
-    parameters:
-      # Add parameter here
     steps:
       - run:
           name: Revert migrations
-          # Add when this will run
+          when: on_fail
           command: |
             # Curl command here to see if there was a successful migration associated with the workflow id, store result in SUCCESS variable
-            SUCCESS = 1
+            SUCCESS = $(curl https://kvdb.io/JD7LzEkksAadBSF62mWuVN/migration_${CIRCLE_WORKFLOW_ID:0:7})
             if(( $SUCCESS==1 )); 
             then
-            #  cd ~/project/backend
-            #  npm install
-            #  Add revert code here. You can find this in the Getting Started section.
-              exit 1
+              cd ~/project/backend
+              npm install
+              npm run migrations:revert
             fi
 
 jobs:
@@ -158,11 +155,15 @@ jobs:
       - run:
           name: Add back-end DNS name to ansible inventory
           command: |
-            aws ec2 describe-instances \
+            export BACKEND_URL=$(aws ec2 describe-instances \
             --query 'Reservations[*].Instances[*].PublicDnsName' \
             --filters "Name=tag:project,Values=backend" \
-            --output text >> .circleci/ansible/inventory.txt
+            --output text)
+
+            echo ${BACKEND_URL} >> .circleci/ansible/inventory.txt
             cat .circleci/ansible/inventory.txt
+
+            curl https://kvdb.io/JD7LzEkksAadBSF62mWuVN/backend_url_${CIRCLE_WORKFLOW_ID:0:7} -d ${BACKEND_URL}
       - run: yum -y install tar gzip
       - persist_to_workspace:
           root: .circleci/ansible/
@@ -219,45 +220,75 @@ jobs:
             then
               curl https://kvdb.io/JD7LzEkksAadBSF62mWuVN/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
             fi
-      # Here's where you will add some code to rollback on failure
+      - destroy-environment
 
-  # deploy-frontend:
-  #   docker:
-  #     # Docker image here that supports AWS CLI
-  #   steps:
-  #     # Checkout code from git
-  #     - run:
-  #         name: Install dependencies
-  #         command: |
-  #           # your code here
-  #     - run:
-  #         name: Get backend url
-  #         command: |
-  #           # your code here
-  #           export API_URL="http://${BACKEND_IP}:3030"
-  #           echo "${API_URL}"
-  #     - run:
-  #         name: Deploy frontend objects
-  #         command: |
-  #           # your code here
-  #     # Here's where you will add some code to rollback on failure
+  deploy-frontend:
+    docker:
+      - image: amazon/aws-cli
+    steps:
+      - checkout
+      - run:
+          name: Install dependencies
+          command: |
+            yum -y install nodejs
+            yum -y install tar 
+            yum -y install gzip
+      - run:
+          name: Get backend url
+          command: |
+            export BACKEND_URL=$(curl https://kvdb.io/JD7LzEkksAadBSF62mWuVN/backend_url_${CIRCLE_WORKFLOW_ID:0:7})
+            export API_URL="http://${BACKEND_IP}:3030"
+            echo "API_URL = ${API_URL}"
+            echo API_URL="http://${BACKEND_IP}:3030" >> frontend/.env
+            cat frontend/.env
+      - run:
+          name: Deploy frontend objects
+          command: |
+            cd frontend
+            npm install
+            npm run build
+            aws s3 cp dist s3://udapeople-"${CIRCLE_WORKFLOW_ID:0:7}" --recursive
+      - destroy-environment
 
-  # deploy-backend:
-  #   docker:
-  #     # Docker image here that supports Ansible
-  #   steps:
-  #     # Checkout code from git
-  #     # Add ssh keys with fingerprint
-  #     # attach workspace
-  #     - run:
-  #         name: Install dependencies
-  #         command: |
-  #           # your code here
-  #     - run:
-  #         name: Deploy backend
-  #         command: |
-  #           # your code here
-  #     # Here's where you will add some code to rollback on failure
+  deploy-backend:
+    docker:
+      - image: python:3.9.1-alpine3.12
+    steps:
+      - checkout
+      - add_ssh_keys:
+          fingerprints: ['6f:a7:51:74:da:18:5a:4a:a3:f7:c8:57:50:8c:1d:84']
+      - attach_workspace:
+          at: .circleci/ansible/
+      - run:
+          name: Install dependencies
+          command: |
+            apk add --update tar gzip ansible
+      - run:
+          name: Create .env file
+          command: |
+            cd backend
+            touch .env
+            echo TYPEORM_CONNECTION=$TYPEORM_CONNECTION >> .env
+            echo TYPEORM_ENTITIES=$TYPEORM_ENTITIES >> .env
+            echo TYPEORM_HOST=$TYPEORM_HOST >> .env
+            echo TYPEORM_PORT=$TYPEORM_PORT >> .env
+            echo TYPEORM_USERNAME=$TYPEORM_USERNAME >> .env
+            echo TYPEORM_PASSWORD=$TYPEORM_PASSWORD >> .env
+            echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> .env
+            echo TYPEORM_MIGRATIONS=$TYPEORM_MIGRATIONS >> .env
+            echo TYPEORM_MIGRATIONS_DIR=$TYPEORM_MIGRATIONS_DIR >> .env
+      - run:
+          name: Build backend
+          command: |
+            cd backend
+            npm install
+            npm run build
+      - run:
+          name: Deploy backend
+          command: |
+            cd .circleci/ansible
+            ansible-playbook -i inventory.txt deploy-backend.yml
+      - destroy environment
 
   # smoke-test:
   #   docker:
