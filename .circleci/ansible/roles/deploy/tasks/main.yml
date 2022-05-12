@@ -1,15 +1,4 @@
 ---
-- name: 'copy'
-  become: true
-  copy:
-    src: /root/project/artifact.tar.gz
-    dest: /home/ubuntu/backend-code.tar.gz
-
-- name: start
-  shell: |
-    cd /home/ubuntu/
-    mkdir project
-    tar -xf backend-code.tar---
 - name: 'update apt packages.'
   become: yes
   apt:
