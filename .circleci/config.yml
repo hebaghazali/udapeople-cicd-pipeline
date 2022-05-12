@@ -150,10 +150,10 @@ jobs:
               --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}" \
               --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"
       - run:
-          name: Add back-end DNS name to ansible inventory
+          name: Add back-end IP address to ansible inventory
           command: |
             export BACKEND_URL=$(aws ec2 describe-instances \
-            --query 'Reservations[*].Instances[*].PublicDnsName' \
+            --query 'Reservations[*].Instances[*].PublicIpAddress' \
             --filters "Name=tag:project,Values=backend" \
             --output text)
 
