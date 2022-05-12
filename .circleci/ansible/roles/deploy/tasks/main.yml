@@ -31,7 +31,7 @@
 
 - name: Copy backend folder to EC2 server
   copy:
-    src: /root/backend
+    src: /root/project/backend
     dest: /home/ubuntu/backend
 
 - name: Starting the app
