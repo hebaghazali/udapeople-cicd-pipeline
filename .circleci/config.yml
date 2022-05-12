@@ -273,9 +273,9 @@ jobs:
             npm run build
             cd ..
             tar -czf artifact.tar.gz backend
+            cd .circleci/ansible
             echo "Contents  of the inventory.txt file is -------"
             cat inventory.txt
-            cd .circleci/ansible
             ansible-playbook -i inventory.txt deploy-backend.yml
       - destroy-environment
       - revert-migrations
