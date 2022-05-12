@@ -11,6 +11,7 @@ commands:
           name: Destroy environments
           when: on_fail
           command: |
+            pip install awscli
             if aws s3 ls "s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7}" 2>&1 | grep -q 'NoSuchBucket'
             then
               aws s3 rm s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
@@ -221,6 +222,7 @@ jobs:
               curl https://kvdb.io/JD7LzEkksAadBSF62mWuVN/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
             fi
       - destroy-environment
+      - revert-migrations
 
   deploy-frontend:
     docker:
@@ -249,6 +251,7 @@ jobs:
             npm run build
             aws s3 cp dist s3://udapeople-"${CIRCLE_WORKFLOW_ID:0:7}" --recursive
       - destroy-environment
+      - revert-migrations
 
   deploy-backend:
     docker:
@@ -289,6 +292,7 @@ jobs:
             cd .circleci/ansible
             ansible-playbook -i inventory.txt deploy-backend.yml
       - destroy-environment
+      - revert-migrations
 
   # smoke-test:
   #   docker:
@@ -350,20 +354,20 @@ jobs:
 workflows:
   default:
     jobs:
-      # - build-frontend:
-      #     context: slack
-      # - build-backend:
-      #     context: slack
+      - build-frontend:
+          context: slack
+      - build-backend:
+          context: slack
       # - test-frontend:
       #     requires: [build-frontend]
       # - test-backend:
       #     requires: [build-backend]
-      # - scan-backend:
-      #     requires: [build-backend]
-      # - scan-frontend:
-      #     requires: [build-frontend]
+      - scan-backend:
+          requires: [build-backend]
+      - scan-frontend:
+          requires: [build-frontend]
       - deploy-infrastructure:
-          # requires: [test-frontend, test-backend, scan-frontend, scan-backend]
+          requires: [scan-frontend, scan-backend]
           filters:
             branches:
               only: [main]
