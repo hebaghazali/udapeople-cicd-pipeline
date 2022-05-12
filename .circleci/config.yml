@@ -260,7 +260,7 @@ jobs:
           fingerprints: ['6f:a7:51:74:da:18:5a:4a:a3:f7:c8:57:50:8c:1d:84']
       - attach_workspace:
           at: .circleci/ansible/
-    - restore_cache:
+      - restore_cache:
           keys: [backend-build]
       - run:
           name: Install dependencies
