@@ -260,6 +260,8 @@ jobs:
           fingerprints: ['6f:a7:51:74:da:18:5a:4a:a3:f7:c8:57:50:8c:1d:84']
       - attach_workspace:
           at: .circleci/ansible/
+    - restore_cache:
+          keys: [backend-build]
       - run:
           name: Install dependencies
           command: |
@@ -272,7 +274,9 @@ jobs:
             npm install
             npm run build
             cd ..
-            tar -C backend -czvf artifact.tar.gz .
+            tar -czf artifact.tar.gz backend
+            cp artifact.tar.gz .circleci/ansible/roles/deploy/tasks/files
+
             cd .circleci/ansible
             echo "Contents  of the inventory.txt file is -------"
             cat inventory.txt
