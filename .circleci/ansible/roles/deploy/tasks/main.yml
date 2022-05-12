@@ -37,7 +37,10 @@
 - name: Starting the app
   shell: |
     cd /home/ubuntu/
-    tar -xzf artifact.tar.gz
+    mkdir backend
+    tar -xzf artifact.tar.gz -C backend/
+    cd backend
+    npm install
     npm run build
     pm2 stop default
     pm2 start npm --name backend -- start
