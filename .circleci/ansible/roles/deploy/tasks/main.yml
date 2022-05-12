@@ -1,20 +1,48 @@
 ---
-- name: 'copy'
-  become: true
+- name: 'update apt packages.'
+  become: yes
+  apt:
+    update_cache: yes
+
+- name: 'upgrade packages'
+  become: yes
+  apt:
+    upgrade: yes
+
+- name: remove dependencies that are no longer required
+  become: yes
+  apt:
+    autoremove: yes
+
+- name: 'install dependencies.'
+  become: yes
+  apt:
+    name: ['nodejs', 'npm']
+    state: latest
+    update_cache: yes
+
+- name: 'install pm2'
+  become: yes
+  npm:
+    name: pm2
+    global: yes
+    production: yes
+    state: present
+
+- name: Copy backend folder to EC2 server
   copy:
     src: /root/project/artifact.tar.gz
-    dest: /home/ubuntu/backend-code.tar.gz
+    dest: /home/ubuntu/backend.tar.gz
 
-- name: start
+- name: Unzip the artifact
   shell: |
     cd /home/ubuntu/
-    mkdir project
-    tar -xf backend-code.tar.gz -C project/
-    cd project
-    curl -fsSL https://deb.nodesource.com/setup_12.x | sudo -E bash -
-    sudo apt-get install -y nodejs
-    sudo npm install -g npm@latest
-    sudo npm install -g webpack-dev-server
+    mkdir backend
+    tar -xf backend.tar.gz -C backend
+
+- name: Starting the app
+  shell: |
+    cd /home/ubuntu/backend
     sudo npm install
     sudo npm run build
     sudo pm2 start npm --name backend -- start
