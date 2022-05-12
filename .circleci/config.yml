@@ -288,7 +288,7 @@ jobs:
           command: |
             cd .circleci/ansible
             ansible-playbook -i inventory.txt deploy-backend.yml
-      - destroy environment
+      - destroy-environment
 
   # smoke-test:
   #   docker:
