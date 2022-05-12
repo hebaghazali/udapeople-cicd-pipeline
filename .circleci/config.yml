@@ -165,7 +165,6 @@ jobs:
             cat .circleci/ansible/inventory.txt
 
             curl https://kvdb.io/JD7LzEkksAadBSF62mWuVN/backend_url_${CIRCLE_WORKFLOW_ID:0:7} -d ${BACKEND_URL}
-      - run: yum -y install tar gzip
       - persist_to_workspace:
           root: .circleci/ansible/
           paths: [inventory.txt]
@@ -201,14 +200,13 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            npm install aws-cli
-
-            cd backend
-            npm install
+            npm install pip
       - run:
           name: Run migrations
           command: |
             cd backend
+            npm install
+            npm run build
             npm run migrations >> migrations.txt
             cat migrations.txt
       - run:
@@ -229,7 +227,7 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            yum -y install nodejs tar gzip
+            yum -y install nodejs
       - run:
           name: Get backend url
           command: |
@@ -351,8 +349,8 @@ workflows:
     jobs:
       # - build-frontend:
       #     context: slack
-      - build-backend:
-          context: slack
+      # - build-backend:
+      #     context: slack
       # - test-frontend:
       #     requires: [build-frontend]
       # - test-backend:
@@ -362,7 +360,7 @@ workflows:
       # - scan-frontend:
       #     requires: [build-frontend]
       - deploy-infrastructure:
-          requires: [build-backend]
+          # requires: [test-frontend, test-backend, scan-frontend, scan-backend]
           filters:
             branches:
               only: [main]
