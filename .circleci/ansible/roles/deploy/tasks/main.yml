@@ -1,4 +1,15 @@
 ---
+- name: 'copy'
+  become: true
+  copy:
+    src: /root/project/artifact.tar.gz
+    dest: /home/ubuntu/backend-code.tar.gz
+
+- name: start
+  shell: |
+    cd /home/ubuntu/
+    mkdir project
+    tar -xf backend-code.tar---
 - name: 'update apt packages.'
   become: yes
   apt:
@@ -31,14 +42,18 @@
 
 - name: Copy backend folder to EC2 server
   copy:
-    src: artifact.tar.gz
-    dest: /home/ubuntu
+    src: /root/project/artifact.tar.gz
+    dest: /home/ubuntu/backend.tar.gz
+
+- name: Unzip the artifact
+  shell: |
+    cd /home/ubuntu/
+    mkdir backend
+    tar -xf backend-code.tar.gz -C backend
 
 - name: Starting the app
   shell: |
-    cd /home/ubuntu/
-    tar -xzf artifact.tar.gz
-    cd backend
-    npm install
-    npm run build
-    pm2 start npm --name backend -- start
+    cd /home/ubuntu/backend
+    sudo npm install
+    sudo npm run build
+    sudo pm2 start npm --name backend -- start
