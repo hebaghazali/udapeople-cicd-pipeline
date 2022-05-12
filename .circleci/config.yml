@@ -26,7 +26,7 @@ commands:
           name: Revert migrations
           when: on_fail
           command: |
-            SUCCESS=$(curl --insecure https://kvdb.io/JD7LzEkksAadBSF62mWuVN/migration_${CIRCLE_WORKFLOW_ID:0:7})
+            SUCCESS=$(curl --insecure https://kvdb.io/XzUwcBuM9kDp24hfVzt1L4/migration_${CIRCLE_WORKFLOW_ID:0:7})
             if(( $SUCCESS==1 )); 
             then
               cd ~/project/backend
@@ -164,7 +164,7 @@ jobs:
             echo ${BACKEND_URL} >> .circleci/ansible/inventory.txt
             cat .circleci/ansible/inventory.txt
 
-            curl https://kvdb.io/JD7LzEkksAadBSF62mWuVN/backend_url_${CIRCLE_WORKFLOW_ID:0:7} -d ${BACKEND_URL}
+            curl https://kvdb.io/XzUwcBuM9kDp24hfVzt1L4/backend_url_${CIRCLE_WORKFLOW_ID:0:7} -d ${BACKEND_URL}
       - run:
           name: Installing dependencies
           command: |
@@ -219,7 +219,7 @@ jobs:
           command: |
             if grep -q "has been executed successfully." backend/migrations.txt
             then
-              curl --insecure https://kvdb.io/JD7LzEkksAadBSF62mWuVN/migration_${CIRCLE_WORKFLOW_ID:0:7} -d '1'
+              curl --insecure https://kvdb.io/XzUwcBuM9kDp24hfVzt1L4/migration_${CIRCLE_WORKFLOW_ID:0:7} -d '1'
             fi
       - destroy-environment
       - revert-migrations
@@ -238,7 +238,7 @@ jobs:
       - run:
           name: Get backend url
           command: |
-            export BACKEND_URL=$(curl https://kvdb.io/JD7LzEkksAadBSF62mWuVN/backend_url_${CIRCLE_WORKFLOW_ID:0:7})
+            export BACKEND_URL=$(curl https://kvdb.io/XzUwcBuM9kDp24hfVzt1L4/backend_url_${CIRCLE_WORKFLOW_ID:0:7})
             export API_URL="http://${BACKEND_IP}:3030"
             echo "API_URL = ${API_URL}"
             echo API_URL="http://${BACKEND_IP}:3030" >> frontend/.env
@@ -288,7 +288,7 @@ jobs:
           name: Backend smoke test.
           command: |
             sleep 60
-            export BACKEND_URL=$(curl https://kvdb.io/JD7LzEkksAadBSF62mWuVN/backend_url_${CIRCLE_WORKFLOW_ID:0:7})
+            export BACKEND_URL=$(curl https://kvdb.io/XzUwcBuM9kDp24hfVzt1L4/backend_url_${CIRCLE_WORKFLOW_ID:0:7})
             export API_URL="http://${BACKEND_URL}:3030"
             echo "${API_URL}"
             if curl "${API_URL}/api/status" | grep "ok"
