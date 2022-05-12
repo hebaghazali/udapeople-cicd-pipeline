@@ -18,13 +18,6 @@ commands:
             fi
             aws cloudformation delete-stack --stack-name udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}
             aws cloudformation delete-stack --stack-name udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}
-  notify:
-    description: Send notification when a build fails
-    steps:
-      - slack/notify:
-          channel: D03EVSE101G
-          event: fail
-          template: basic_fail_1
 
   revert-migrations:
     description: Revert the last migration if successfully run in the current workflow.
@@ -33,7 +26,6 @@ commands:
           name: Revert migrations
           when: on_fail
           command: |
-            # Curl command here to see if there was a successful migration associated with the workflow id, store result in SUCCESS variable
             SUCCESS = $(curl https://kvdb.io/JD7LzEkksAadBSF62mWuVN/migration_${CIRCLE_WORKFLOW_ID:0:7})
             if(( $SUCCESS==1 )); 
             then
@@ -41,6 +33,14 @@ commands:
               npm install
               npm run migrations:revert
             fi
+
+  notify:
+    description: Send notification when a build fails
+    steps:
+      - slack/notify:
+          channel: D03EVSE101G
+          event: fail
+          template: basic_fail_1
 
 jobs:
   build-frontend:
@@ -216,11 +216,13 @@ jobs:
             echo TYPEORM_MIGRATIONS=$TYPEORM_MIGRATIONS >> .env
             echo TYPEORM_MIGRATIONS_DIR=$TYPEORM_MIGRATIONS_DIR >> .env
 
-            npm run migrations > migrations_dump.txt
+            cat .env
+
+            npm run migrations > migrations.txt
       - run:
           name: Send migration results to kvdb
           command: |
-            if grep -q "has been executed successfully." backend/migrations_dump.txt
+            if grep -q "has been executed successfully." backend/migrations.txt
             then
               curl https://kvdb.io/JD7LzEkksAadBSF62mWuVN/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
             fi
@@ -355,10 +357,10 @@ jobs:
 workflows:
   default:
     jobs:
-      - build-frontend:
-          context: slack
-      - build-backend:
-          context: slack
+      # - build-frontend:
+      #     context: slack
+      # - build-backend:
+      #     context: slack
       # - test-frontend:
       #     requires: [build-frontend]
       # - test-backend:
@@ -368,7 +370,7 @@ workflows:
       # - scan-frontend:
       #     requires: [build-frontend]
       - deploy-infrastructure:
-          requires: [build-frontend, build-backend]
+          # requires: [test-frontend, test-backend, scan-frontend, scan-backend]
           filters:
             branches:
               only: [main]
