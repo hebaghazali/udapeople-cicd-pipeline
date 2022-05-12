@@ -11,6 +11,7 @@ commands:
           name: Destroy environments
           when: on_fail
           command: |
+            apk add --update awscli
             if aws s3 ls "s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7}" 2>&1 | grep -q 'NoSuchBucket'
             then
               aws s3 rm s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
@@ -198,10 +199,6 @@ jobs:
       - restore_cache:
           keys: [backend-build]
       - run:
-          name: Install dependencies
-          command: |
-            yum -y install nodejs awscli
-      - run:
           name: Run migrations
           command: |
             cd backend
@@ -238,7 +235,7 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            yum -y install nodejs tar gzip awscli
+            yum -y install nodejs tar gzip
       - run:
           name: Get backend url
           command: |
