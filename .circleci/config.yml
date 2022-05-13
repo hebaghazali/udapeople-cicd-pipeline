@@ -299,7 +299,7 @@ jobs:
           name: Backend smoke test.
           command: |
             export BACKEND_URL=$(curl https://kvdb.io/XzUwcBuM9kDp24hfVzt1L4/backend_url_${CIRCLE_WORKFLOW_ID:0:7})
-            sleep 40
+            sleep 20
             export API_URL="http://${BACKEND_URL}:3030"
             echo "${API_URL}"
             if curl "${API_URL}/api/status" | grep "ok"
@@ -320,8 +320,8 @@ jobs:
             else
               return 1
             fi
-      - destroy-environment
-      - revert-migrations
+      # - destroy-environment
+      # - revert-migrations
 
   # cloudfront-update:
   #   docker:
