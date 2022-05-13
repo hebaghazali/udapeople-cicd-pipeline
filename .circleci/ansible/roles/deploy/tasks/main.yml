@@ -1,34 +1,4 @@
 ---
-- name: 'update apt packages.'
-  become: yes
-  apt:
-    update_cache: yes
-
-- name: 'upgrade packages'
-  become: yes
-  apt:
-    upgrade: yes
-
-- name: remove dependencies that are no longer required
-  become: yes
-  apt:
-    autoremove: yes
-
-- name: 'install dependencies.'
-  become: yes
-  apt:
-    name: ['nodejs', 'npm']
-    state: latest
-    update_cache: yes
-
-- name: 'install pm2'
-  become: yes
-  npm:
-    name: pm2
-    global: yes
-    production: yes
-    state: present
-
 - name: Copy backend folder to EC2 server
   copy:
     src: /root/project/artifact.tar.gz
@@ -39,6 +9,13 @@
     cd /home/ubuntu/
     mkdir backend
     tar -xf backend.tar.gz -C backend
+
+- name: Installing dependencies
+  shell: |
+    cd /home/ubuntu/backend 
+    sudo apt-get install -y nodejs
+    sudo npm install -g npm@latest
+    sudo npm install -g webpack-dev-server
 
 - name: Starting the app
   shell: |
