@@ -313,7 +313,7 @@ jobs:
           name: Backend smoke test.
           command: |
             export BACKEND_URL=$(curl https://kvdb.io/XzUwcBuM9kDp24hfVzt1L4/backend_url_${CIRCLE_WORKFLOW_ID:0:7})
-            sleep 40
+            sleep 20
             export API_URL="http://${BACKEND_URL}:3030"
             echo "${API_URL}"
             if curl "${API_URL}/api/status" | grep "ok"
@@ -329,8 +329,7 @@ jobs:
             echo ${URL} 
             if curl -s ${URL} | grep "Welcome"
             then
-                # Change this to 0 after the job fails
-              return 1
+              return 0
             else
               return 1
             fi
