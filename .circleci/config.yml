@@ -138,7 +138,7 @@ jobs:
           command: |
             aws cloudformation deploy \
               --template-file .circleci/files/backend.yml \
-              --tags project=backend \
+              --tags project=backend-${CIRCLE_WORKFLOW_ID:0:7} \
               --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
               --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"
       - run:
@@ -146,7 +146,7 @@ jobs:
           command: |
             aws cloudformation deploy \
               --template-file .circleci/files/frontend.yml \
-              --tags project=frontend \
+              --tags project=frontend-${CIRCLE_WORKFLOW_ID:0:7} \
               --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}" \
               --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"
       - run:
@@ -154,7 +154,7 @@ jobs:
           command: |
             export BACKEND_URL=$(aws ec2 describe-instances \
             --query 'Reservations[*].Instances[*].PublicDnsName' \
-            --filters "Name=tag:project,Values=backend" \
+            --filters "Name=tag:project,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \
             --output text)
 
             echo [web] > .circleci/ansible/inventory.txt
