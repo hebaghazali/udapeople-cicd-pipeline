@@ -268,22 +268,25 @@ jobs:
             apk add --update ansible tar gzip curl nodejs npm
             pip install awscli
       - run:
+          name: Create .env file
+          command: |
+            cd backend
+            touch .env
+            echo ENVIRONMENT=production > .env
+            echo TYPEORM_CONNECTION=postgres >> .env
+            echo TYPEORM_ENTITIES=./src/modules/domain/**/*.entity.ts >> .env
+            echo TYPEORM_HOST=$TYPEORM_HOST >> .env
+            echo TYPEORM_PORT=5432 >> .env
+            echo TYPEORM_USERNAME=postgres >> .env
+            echo TYPEORM_PASSWORD=mypassword >> .env
+            echo TYPEORM_DATABASE=postgres >> .env
+            echo TYPEORM_MIGRATIONS=./src/migrations/*.ts >> .env
+            echo TYPEORM_MIGRATIONS_DIR=./src/migrations >> .env
+            cat .env
+      - run:
           name: Deploy backend
           command: |
             cd backend
-
-            touch .env
-            echo ENVIRONMENT=$ENVIRONMENT > .env
-            echo TYPEORM_CONNECTION=$TYPEORM_CONNECTION >> .env
-            echo TYPEORM_ENTITIES=$TYPEORM_ENTITIES >> .env
-            echo TYPEORM_HOST=$TYPEORM_HOST >> .env
-            echo TYPEORM_PORT=$TYPEORM_PORT >> .env
-            echo TYPEORM_USERNAME=$TYPEORM_USERNAME >> .env
-            echo TYPEORM_PASSWORD=$TYPEORM_PASSWORD >> .env
-            echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> .env
-            echo TYPEORM_MIGRATIONS=$TYPEORM_MIGRATIONS >> .env
-            echo TYPEORM_MIGRATIONS_DIR=$TYPEORM_MIGRATIONS_DIR >> .env
-            cat .env
 
             npm install
             npm run build
@@ -385,7 +388,7 @@ workflows:
       # - scan-frontend:
       #     requires: [build-frontend]
       - deploy-infrastructure:
-          # requires: [test-frontend, test-backend, scan-frontend, scan-backend]
+          requires: [build-backend]
           filters:
             branches:
               only: [main]
@@ -397,8 +400,8 @@ workflows:
           requires: [run-migrations]
       - deploy-backend:
           requires: [run-migrations]
-      - smoke-test:
-          requires: [deploy-backend, deploy-frontend]
+      # - smoke-test:
+      #     requires: [deploy-backend, deploy-frontend]
       # - cloudfront-update:
       #     requires: [smoke-test]
       # - cleanup:
