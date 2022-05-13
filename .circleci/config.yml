@@ -345,7 +345,7 @@ jobs:
           name: Install dependencies
           command: |
             yum install -y curl
-      - run;
+      - run:
           name: Save old workflow ID to kvdb
           command: |
             export OldWorkflowID=$(aws cloudformation \
