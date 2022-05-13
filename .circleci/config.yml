@@ -275,7 +275,7 @@ jobs:
             echo ENVIRONMENT=production > .env
             echo TYPEORM_CONNECTION=postgres >> .env
             echo TYPEORM_ENTITIES=./src/modules/domain/**/*.entity.ts >> .env
-            echo TYPEORM_HOST=$TYPEORM_HOST >> .env
+            echo TYPEORM_HOST=database-1.cglri102xg2d.us-east-1.rds.amazonaws.com >> .env
             echo TYPEORM_PORT=5432 >> .env
             echo TYPEORM_USERNAME=postgres >> .env
             echo TYPEORM_PASSWORD=mypassword >> .env
