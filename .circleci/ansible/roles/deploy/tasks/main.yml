@@ -10,13 +10,6 @@
     mkdir backend
     tar -xf backend.tar.gz -C backend
 
-- name: Installing dependencies
-  shell: |
-    cd /home/ubuntu/backend 
-    sudo apt-get install -y nodejs
-    sudo npm install -g npm@latest
-    sudo npm install -g webpack-dev-server
-
 - name: Starting the app
   shell: |
     cd /home/ubuntu/backend
