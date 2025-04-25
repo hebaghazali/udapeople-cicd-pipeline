@@ -1,4 +1,4 @@
-https://github.com/hebaghazali/cloud-devops-cicd-project [URL01]
+https://github.com/hebaghazali/udapeople-cicd-pipeline [URL01]
 http://udapeople-f4cc07a.s3-website-us-east-1.amazonaws.com/ [URL02]
 d10yes7wtwi7t8.cloudfront.net [URL03]
 ec2-54-166-237-61.compute-1.amazonaws.com [URL04]
